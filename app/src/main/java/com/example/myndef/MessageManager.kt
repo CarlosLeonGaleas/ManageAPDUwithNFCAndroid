@@ -1,13 +1,28 @@
 package com.example.myndef
 
-object MessageManager {
-    private var message: String = "No hay datos escritos"
+import android.content.Context
+import android.content.SharedPreferences
 
-    fun setMessage(newMessage: String) {
-        message = newMessage
+object MessageManager {
+    private const val PREFS_NAME = "MessagePrefs"
+    private const val KEY_MESSAGE = "lastMessage"
+    private lateinit var sharedPreferences: SharedPreferences
+
+    // Inicializar las preferencias
+    fun initialize(context: Context) {
+        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    // Función para establecer un nuevo mensaje
+    fun setMessage(newMessage: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(KEY_MESSAGE, newMessage)
+        editor.apply() // Guarda el mensaje en SharedPreferences
+    }
+
+    // Función para obtener el último mensaje almacenado
     fun getMessage(): String {
-        return message
+        // Retorna el mensaje guardado o el valor por defecto si no existe
+        return sharedPreferences.getString(KEY_MESSAGE, "No hay datos escritos") ?: "No hay datos escritos"
     }
 }

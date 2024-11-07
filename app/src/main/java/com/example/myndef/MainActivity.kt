@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var actualMessageTextView: TextView
     private lateinit var messageEditText: EditText
     private lateinit var startEmulationButton: Button
     private lateinit var statusTextView: TextView
@@ -32,10 +33,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Inicializar MessageManager con el contexto de la actividad
+        MessageManager.initialize(this)
+
+        actualMessageTextView = findViewById(R.id.actualMessageTextView)
         messageEditText = findViewById(R.id.messageEditText)
         startEmulationButton = findViewById(R.id.startEmulationButton)
         statusTextView = findViewById(R.id.statusTextView)
         requestTextView = findViewById(R.id.requestTextView)
+
+        actualMessageTextView.text = MessageManager.getMessage()
 
         startEmulationButton.setOnClickListener {
             // Registrar el BroadcastReceiver
