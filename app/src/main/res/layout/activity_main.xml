@@ -23,14 +23,14 @@
         android:layout_width="375dp"
         android:layout_height="83dp"
         android:layout_marginTop="16dp"
-        android:hint="Escriba su mensaje" />
+        android:hint="Escriba el mensaje a transmitir" />
 
     <Button
         android:id="@+id/startEmulationButton"
         android:layout_width="375dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Iniciar Emulación" />
+        android:text="Cambiar Mensaje" />
 
     <TextView
         android:id="@+id/statusTextView"

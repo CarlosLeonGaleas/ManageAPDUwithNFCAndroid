@@ -8,11 +8,13 @@ import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.NfcEvent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,14 +47,15 @@ class MainActivity : AppCompatActivity() {
 
         actualMessageTextView.text = MessageManager.getMessage()
 
+        // Registrar el BroadcastReceiver
+        registerReceiver(apduReceiver, IntentFilter("APDU_COMMAND_RECEIVED"), RECEIVER_EXPORTED)
+
         startEmulationButton.setOnClickListener {
-            // Registrar el BroadcastReceiver
-            registerReceiver(apduReceiver, IntentFilter("APDU_COMMAND_RECEIVED"), RECEIVER_EXPORTED)
 
             val message = messageEditText.text.toString()
             if (message.isNotEmpty()) {
                 MessageManager.setMessage(message)
-                statusTextView.text = "Emulación iniciada. Mensaje cargado para transmitir."
+                statusTextView.text = "Mensaje cargado para transmitir."
             } else {
                 statusTextView.text = "Por favor escriba su mensaje."
             }
