@@ -19,7 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var actualMessageTextView: TextView
-    private lateinit var messageEditText: EditText
+    private lateinit var namesEditText: EditText
+    private lateinit var phoneEditText: EditText
     private lateinit var startEmulationButton: Button
     private lateinit var statusTextView: TextView
     private lateinit var requestTextView: TextView
@@ -40,7 +41,8 @@ class MainActivity : AppCompatActivity() {
         MessageManager.initialize(this)
 
         actualMessageTextView = findViewById(R.id.actualMessageTextView)
-        messageEditText = findViewById(R.id.messageEditText)
+        namesEditText = findViewById(R.id.messageEditText)
+        phoneEditText = findViewById(R.id.numberPhoneText)
         startEmulationButton = findViewById(R.id.startEmulationButton)
         statusTextView = findViewById(R.id.statusTextView)
         requestTextView = findViewById(R.id.requestTextView)
@@ -52,12 +54,13 @@ class MainActivity : AppCompatActivity() {
 
         startEmulationButton.setOnClickListener {
 
-            val message = messageEditText.text.toString()
-            if (message.isNotEmpty()) {
-                MessageManager.setMessage(message)
-                statusTextView.text = "Mensaje cargado para transmitir."
+            val name = namesEditText.text.toString()
+            val phoneNumber = phoneEditText.text.toString()
+            if (name.isNotEmpty() && phoneNumber.isNotEmpty()) {
+                MessageManager.setMessage(name+phoneNumber)
+                statusTextView.text = "Acerque su télefono al lector NFC"
             } else {
-                statusTextView.text = "Por favor escriba su mensaje."
+                statusTextView.text = "Por favor ingrese todos los datos para el iniciar el registro"
             }
         }
     }
