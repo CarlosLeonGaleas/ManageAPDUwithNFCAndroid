@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class MainViewModel : ViewModel() {
+class MainActivityViewModel : ViewModel() {
 
     // Estados privados mutables
     private val _actualMessage = MutableStateFlow("No hay datos escritos")
@@ -23,7 +23,7 @@ class MainViewModel : ViewModel() {
 
     // Instancia estática para acceso desde el BroadcastReceiver
     companion object {
-        var instance: MainViewModel? = null
+        var instance: MainActivityViewModel? = null
     }
 
     init {

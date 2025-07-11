@@ -37,6 +37,7 @@ class MyHostApduService : HostApduService() {
         private const val CMD_SET_CONFIG = "SET_CONFIG"
     }
 
+    // Recibe TODOS los comandos del ESP, los identifica y decide qué hacer con cada uno
     override fun processCommandApdu(commandApdu: ByteArray, extras: Bundle?): ByteArray {
         return when {
             // SELECT AID - Seleccionar aplicación
