@@ -9,17 +9,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myndef.ui.components.LoginScreen
 import com.example.myndef.ui.components.MainScreen
@@ -71,9 +66,10 @@ fun MainScreen(viewModel: MainActivityViewModel = viewModel()) {
     // Estados observables del ViewModel
     val actualMessage by viewModel.actualMessage.collectAsState()
     val nameText by viewModel.nameText.collectAsState()
-    val phoneText by viewModel.phoneText.collectAsState()
+    val phoneNumber by viewModel.phoneNumber.collectAsState()
     val statusText by viewModel.statusText.collectAsState()
     val requestText by viewModel.requestText.collectAsState()
+    val phoneNumberValid by viewModel.phoneNumberValid.collectAsState()
 
     var isLoggedIn by remember { mutableStateOf(false) }
 
@@ -85,13 +81,17 @@ fun MainScreen(viewModel: MainActivityViewModel = viewModel()) {
     if (!isLoggedIn) {
         LoginScreen(
             nameText = nameText,
-            phoneText = phoneText,
+            phoneNumber = phoneNumber,
             statusText = statusText,
             onNameChange = viewModel::updateNameText,
-            onPhoneChange = viewModel::updatePhoneText,
+            onPhoneChange = viewModel::updatePhoneNumber,
+            onPhoneNumberValid = viewModel::updatePhoneNumberValid,
             onLoginClick = {
-                if (nameText.isNotEmpty() && phoneText.isNotEmpty()) {
-                    MessageManager.setMessage("$nameText $phoneText")
+                if (!phoneNumberValid){
+                    viewModel.updateStatusText("El número de teléfono ingresado contiene errores")
+                }
+                else if (nameText.isNotEmpty() && phoneNumber.isNotEmpty()) {
+                    MessageManager.setMessage("$nameText $phoneNumber")
                     viewModel.updateStatusText("Acerque su teléfono al lector NFC")
                     viewModel.updateActualMessage(MessageManager.getMessage())
                     isLoggedIn = true
@@ -103,7 +103,7 @@ fun MainScreen(viewModel: MainActivityViewModel = viewModel()) {
     } else {
         MainScreen(
             name = nameText,
-            phone = phoneText,
+            phone = phoneNumber,
             apduCommand = requestText,
             onLogout = {
                 isLoggedIn = false
