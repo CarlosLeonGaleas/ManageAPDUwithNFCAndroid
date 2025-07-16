@@ -61,11 +61,21 @@ fun MainScreen(
 
         ApduCard(apduCommand)
 
-        OptionsQuestion(question = q1)
-        OptionsQuestion(question = q2)
-        OptionsQuestion(question = q3)
-        OptionsQuestion(question = q4)
-        OptionsQuestion(question = q5)
+        if (q1 != ""){
+            OptionsQuestion(question = q1)
+        }
+        if (q2 != ""){
+            OptionsQuestion(question = q2)
+        }
+        if (q3 != ""){
+            OptionsQuestion(question = q3)
+        }
+        if (q4 != ""){
+            OptionsQuestion(question = q4)
+        }
+        if (q5 != ""){
+            OptionsQuestion(question = q5)
+        }
     }
 }
 

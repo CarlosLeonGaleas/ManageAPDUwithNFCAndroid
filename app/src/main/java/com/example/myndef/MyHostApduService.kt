@@ -29,6 +29,11 @@ class MyHostApduService : HostApduService() {
         private const val UPDATE_BINARY_INS = 0xD6.toByte()
 
         // Comandos específicos de la aplicación
+        private const val CMD_UPDATE_Q1 = "UPDATE_Q1"
+        private const val CMD_UPDATE_Q2 = "UPDATE_Q2"
+        private const val CMD_UPDATE_Q3 = "UPDATE_Q3"
+        private const val CMD_UPDATE_Q4 = "UPDATE_Q4"
+        private const val CMD_UPDATE_Q5 = "UPDATE_Q5"
         private const val CMD_GET_USER_DATA = "GET_USER_DATA"
         private const val CMD_GET_BATTERY = "GET_BATTERY"
         private const val CMD_GET_LOCATION = "GET_LOCATION"
@@ -102,17 +107,43 @@ class MyHostApduService : HostApduService() {
             val data = commandApdu.copyOfRange(5, 5 + dataLength)
             val command = String(data)
 
-            val response = when (command) {
-                CMD_GET_USER_DATA -> getUserData()
-                CMD_GET_BATTERY -> getBatteryLevel()
-                CMD_GET_LOCATION -> getLocation()
-                CMD_TAKE_PHOTO -> takePhoto()
-                CMD_SEND_SMS -> sendSMS()
-                CMD_SET_CONFIG -> setConfiguration(command)
+            val response = when {
+                command.startsWith(CMD_UPDATE_Q1) -> {
+                    val value = command.substringAfter(":")
+                    broadcastCommand("UPDATE_Q1:$value")
+                    "Q1 actualizado: $value"
+                }
+                command.startsWith(CMD_UPDATE_Q2) -> {
+                    val value = command.substringAfter(":")
+                    broadcastCommand("UPDATE_Q2:$value")
+                    "Q2 actualizado: $value"
+                }
+                command.startsWith(CMD_UPDATE_Q3) -> {
+                    val value = command.substringAfter(":")
+                    broadcastCommand("UPDATE_Q3:$value")
+                    "Q3 actualizado: $value"
+                }
+                command.startsWith(CMD_UPDATE_Q4) -> {
+                    val value = command.substringAfter(":")
+                    broadcastCommand("UPDATE_Q4:$value")
+                    "Q4 actualizado: $value"
+                }
+                command.startsWith(CMD_UPDATE_Q5) -> {
+                    val value = command.substringAfter(":")
+                    broadcastCommand("UPDATE_Q5:$value")
+                    "Q5 actualizado: $value"
+                }
                 else -> processCustomCommand(command)
+                //CMD_GET_USER_DATA -> getUserData()
+                //CMD_GET_BATTERY -> getBatteryLevel()
+                //CMD_GET_LOCATION -> getLocation()
+                //CMD_TAKE_PHOTO -> takePhoto()
+                //CMD_SEND_SMS -> sendSMS()
+                //CMD_SET_CONFIG -> setConfiguration(command)
+                //else -> processCustomCommand(command)
             }
 
-            broadcastCommand("PUT_DATA: $command")
+            //broadcastCommand("PUT_DATA: $command")
             return createResponse(response.toByteArray())
         }
 
@@ -190,10 +221,50 @@ class MyHostApduService : HostApduService() {
     private fun processCustomCommand(command: String): String {
         // Procesar comandos personalizados
         return when {
-            command.startsWith("ECHO:") -> command.substring(5)
-            command.equals("PING") -> "PONG"
-            command.equals("TIME") -> System.currentTimeMillis().toString()
-            else -> "Comando desconocido: $command"
+            command.startsWith("ECHO:") -> {
+                val message = command.substring(5)
+                broadcastCommand("UPDATE_STATUS:Echo recibido: $message")
+                message
+            }
+            command.equals("PING") -> {
+                broadcastCommand("UPDATE_STATUS:Ping recibido")
+                "PONG"
+            }
+            command.equals("TIME") -> {
+                val time = System.currentTimeMillis().toString()
+                broadcastCommand("UPDATE_STATUS:Tiempo solicitado")
+                time
+            }
+            // Nuevos comandos personalizados
+            command.startsWith("SET_Q1:") -> {
+                val value = command.substringAfter("SET_Q1:")
+                broadcastCommand("UPDATE_Q1:$value")
+                "Q1 configurado: $value"
+            }
+            command.startsWith("SET_Q2:") -> {
+                val value = command.substringAfter("SET_Q2:")
+                broadcastCommand("UPDATE_Q2:$value")
+                "Q2 configurado: $value"
+            }
+            command.startsWith("SET_Q3:") -> {
+                val value = command.substringAfter("SET_Q3:")
+                broadcastCommand("UPDATE_Q3:$value")
+                "Q3 configurado: $value"
+            }
+            command.startsWith("SET_Q4:") -> {
+                val value = command.substringAfter("SET_Q4:")
+                broadcastCommand("UPDATE_Q4:$value")
+                "Q4 configurado: $value"
+            }
+            command.startsWith("SET_Q5:") -> {
+                val value = command.substringAfter("SET_Q5:")
+                broadcastCommand("UPDATE_Q5:$value")
+                "Q5 configurado: $value"
+            }
+            else -> {
+                broadcastCommand("UPDATE_STATUS:Comando desconocido: $command")
+                "Comando desconocido: $command"
+            }
         }
     }
 

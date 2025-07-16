@@ -18,14 +18,45 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myndef.ui.components.LoginScreen
 import com.example.myndef.ui.components.MainScreen
+import com.example.myndef.ui.components.MainScreenViewModel
 import com.example.myndef.ui.theme.MyNDEFTheme
 
 class MainActivity : ComponentActivity() {
     private val apduReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val command = intent?.getStringExtra("APDU_COMMAND") ?: "Unknown"
+
             // Actualizar el ViewModel cuando se reciba un comando
-            MainActivityViewModel.instance?.updateRequestText(command)
+            when {
+                command.startsWith("UPDATE_Q1:") -> {
+                    val value = command.substringAfter("UPDATE_Q1:")
+                    MainScreenViewModel.instance?.updateQ1(value)
+                }
+                command.startsWith("UPDATE_Q2:") -> {
+                    val value = command.substringAfter("UPDATE_Q2:")
+                    MainScreenViewModel.instance?.updateQ2(value)
+                }
+                command.startsWith("UPDATE_Q3:") -> {
+                    val value = command.substringAfter("UPDATE_Q3:")
+                    MainScreenViewModel.instance?.updateQ3(value)
+                }
+                command.startsWith("UPDATE_Q4:") -> {
+                    val value = command.substringAfter("UPDATE_Q4:")
+                    MainScreenViewModel.instance?.updateQ4(value)
+                }
+                command.startsWith("UPDATE_Q5:") -> {
+                    val value = command.substringAfter("UPDATE_Q5:")
+                    MainScreenViewModel.instance?.updateQ5(value)
+                }
+                command.startsWith("NFC Desconectado") -> {
+                    MainActivityViewModel.instance?.updateStatusText("NFC Desconectado")
+                    MainActivityViewModel.instance?.updateRequestText("Conexión perdida")
+                }
+                else -> {
+                    // Comando genérico - actualizar requestText como antes
+                    MainActivityViewModel.instance?.updateRequestText(command)
+                }
+            }
         }
     }
 
@@ -45,7 +76,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    PrincipalScreen()
                 }
             }
         }
@@ -54,12 +85,16 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Desregistrar el BroadcastReceiver
-        //unregisterReceiver(apduReceiver)
+        try {
+            unregisterReceiver(apduReceiver)
+        } catch (e: Exception) {
+            // Ignorar si ya estaba desregistrado
+        }
     }
 }
 
 @Composable
-fun MainScreen(viewModel: MainActivityViewModel = viewModel()) {
+fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
