@@ -144,7 +144,7 @@ class MyHostApduService : HostApduService() {
             }
 
             //broadcastCommand("PUT_DATA: $command")
-            return createResponse(response.toByteArray())
+            return createResponse(SUCCESS_SW)
         }
 
         return ERROR_SW
