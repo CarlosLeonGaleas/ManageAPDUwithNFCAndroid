@@ -93,6 +93,11 @@ class MyHostApduService : HostApduService() {
             // SELECT AID - Seleccionar aplicación
             commandApdu.contentEquals(SELECT_APDU) -> {
                 val responseMessage = "App NFC Conectada - ${MessageManager.getMessage()}"
+                broadcastCommand("UPDATE_Q1:")
+                broadcastCommand("UPDATE_Q2:")
+                broadcastCommand("UPDATE_Q3:")
+                broadcastCommand("UPDATE_Q4:")
+                broadcastCommand("UPDATE_Q5:")
                 createResponse(responseMessage.toByteArray())
             }
 

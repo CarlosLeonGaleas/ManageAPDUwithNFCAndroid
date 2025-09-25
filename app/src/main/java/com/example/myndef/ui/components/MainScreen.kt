@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -75,6 +76,16 @@ fun MainScreen(
         }
         if (q5 != ""){
             OptionsQuestion(question = q5)
+        }
+        if (q1 != "" && q2 != "" && q3 != "" && q4 != "" && q5 != ""){
+            Button(onClick = onLogout) {
+                Text("Confirmar Respuestas")
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(R.drawable.save_responses),
+                    contentDescription = "Confirmar Respuestas",
+                )
+            }
         }
     }
 }
