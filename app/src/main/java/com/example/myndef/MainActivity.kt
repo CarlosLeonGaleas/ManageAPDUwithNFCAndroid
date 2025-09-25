@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -24,7 +25,8 @@ import com.example.myndef.ui.theme.MyNDEFTheme
 class MainActivity : ComponentActivity() {
     private val apduReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val command = intent?.getStringExtra("APDU_COMMAND") ?: "Unknown"
+            val command = intent?.getStringExtra("APDU_COMMAND") ?: return
+            Log.d("MainActivity", "Comando recibido: $command")
 
             // Actualizar el ViewModel cuando se reciba un comando
             when {
@@ -117,7 +119,7 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
         LoginScreen(
             nameText = nameText,
             phoneNumber = phoneNumber,
-            statusText = statusText,
+            statusText = actualMessage,
             onNameChange = viewModel::updateNameText,
             onPhoneChange = viewModel::updatePhoneNumber,
             onPhoneNumberValid = viewModel::updatePhoneNumberValid,

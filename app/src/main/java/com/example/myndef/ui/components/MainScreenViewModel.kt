@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class MainScreenViewModel : ViewModel(){
     // Estados privados mutables
     private val _q1 = MutableStateFlow("")
-    private val _q2 = MutableStateFlow("¿Cuál es la capital del Ecuador?|Quito|Ambato|Guayaquil|Cuenca|2")
+    private val _q2 = MutableStateFlow("")
     private val _q3 = MutableStateFlow("")
-    private val _q4 = MutableStateFlow("¿Cuál es la capital del Ecuador?|Cuenca|Quito|Guayaquil|Ambato|2")
+    private val _q4 = MutableStateFlow("")
     private val _q5 = MutableStateFlow("")
 
     // Estados públicos inmutables
