@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainScreenViewModel : ViewModel(){
     // Estados privados mutables
+    private val _status = MutableStateFlow("EMPTY")
     private val _q1 = MutableStateFlow("")
     private val _q2 = MutableStateFlow("")
     private val _q3 = MutableStateFlow("")
@@ -15,6 +16,7 @@ class MainScreenViewModel : ViewModel(){
     private val _q5 = MutableStateFlow("")
 
     // Estados públicos inmutables
+    val status: StateFlow<String> = _status.asStateFlow()
     val q1: StateFlow<String> = _q1.asStateFlow()
     val q2: StateFlow<String> = _q2.asStateFlow()
     val q3: StateFlow<String> = _q3.asStateFlow()
@@ -28,6 +30,10 @@ class MainScreenViewModel : ViewModel(){
 
     init {
         instance = this
+    }
+
+    fun updateStatus(status: String){
+        _status.value = status
     }
 
     fun updateQ1(question: String){

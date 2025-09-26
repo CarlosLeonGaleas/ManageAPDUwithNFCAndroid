@@ -30,6 +30,10 @@ class MainActivity : ComponentActivity() {
 
             // Actualizar el ViewModel cuando se reciba un comando
             when {
+                command.startsWith("STATUS_DATA:") -> {
+                    val value = command.substringAfter("STATUS_DATA:")
+                    MainScreenViewModel.instance?.updateStatus(value)
+                }
                 command.startsWith("UPDATE_Q1:") -> {
                     val value = command.substringAfter("UPDATE_Q1:")
                     MainScreenViewModel.instance?.updateQ1(value)

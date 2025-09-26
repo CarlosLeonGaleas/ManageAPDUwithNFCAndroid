@@ -93,11 +93,7 @@ class MyHostApduService : HostApduService() {
             // SELECT AID - Seleccionar aplicación
             commandApdu.contentEquals(SELECT_APDU) -> {
                 val responseMessage = "App NFC Conectada - ${MessageManager.getMessage()}"
-                broadcastCommand("UPDATE_Q1:")
-                broadcastCommand("UPDATE_Q2:")
-                broadcastCommand("UPDATE_Q3:")
-                broadcastCommand("UPDATE_Q4:")
-                broadcastCommand("UPDATE_Q5:")
+                broadcastCommand("STATUS_DATA:EMPTY")
                 createResponse(responseMessage.toByteArray())
             }
 
@@ -323,6 +319,7 @@ class MyHostApduService : HostApduService() {
             transferState = TransferState.PROCESSING_QUIZ
             processQuizData()
             broadcastCommand("TRANSFER_COMPLETE:Quiz procesado exitosamente")
+            broadcastCommand("STATUS_DATA:COMPLETED")
             return createResponse("END_OK".toByteArray())
         } else {
             transferState = TransferState.ERROR

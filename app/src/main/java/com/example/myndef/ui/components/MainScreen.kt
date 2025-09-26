@@ -43,11 +43,16 @@ fun MainScreen(
     viewModel: MainScreenViewModel = viewModel()
 ) {
     // Estados observables del ViewModel
+    val status by viewModel.status.collectAsState()
     val q1 by viewModel.q1.collectAsState()
     val q2 by viewModel.q2.collectAsState()
     val q3 by viewModel.q3.collectAsState()
     val q4 by viewModel.q4.collectAsState()
     val q5 by viewModel.q5.collectAsState()
+
+    fun onConfirm(){
+        viewModel.updateStatus("CONFIRMED")
+    }
 
     Column(
         modifier = Modifier
@@ -58,33 +63,28 @@ fun MainScreen(
     ) {
         UserCard(name = name, phone = phone, onLogout = onLogout)
 
-        Text("Acerque su teléfono para acceder al cuestionario")
+        if (status == "EMPTY"){
+            Text("Acerque su teléfono para acceder al cuestionario")
+        }
 
         ApduCard(apduCommand)
 
-        if (q1 != ""){
-            OptionsQuestion(question = q1)
-        }
-        if (q2 != ""){
-            OptionsQuestion(question = q2)
-        }
-        if (q3 != ""){
-            OptionsQuestion(question = q3)
-        }
-        if (q4 != ""){
-            OptionsQuestion(question = q4)
-        }
-        if (q5 != ""){
-            OptionsQuestion(question = q5)
-        }
-        if (q1 != "" && q2 != "" && q3 != "" && q4 != "" && q5 != ""){
-            Button(onClick = onLogout) {
+        if (status == "COMPLETED" || status == "CONFIRMED"){
+            OptionsQuestion(question = q1, enabled = status == "COMPLETED")
+            OptionsQuestion(question = q2, enabled = status == "COMPLETED")
+            OptionsQuestion(question = q3, enabled = status == "COMPLETED")
+            OptionsQuestion(question = q4, enabled = status == "COMPLETED")
+            OptionsQuestion(question = q5, enabled = status == "COMPLETED")
+            Button(onClick = { onConfirm() }) {
                 Text("Confirmar Respuestas")
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     painter = painterResource(R.drawable.save_responses),
                     contentDescription = "Confirmar Respuestas",
                 )
+            }
+            if (status == "CONFIRMED"){
+                Text("Acerque su teléfono al lector para ver y registrar su puntuación")
             }
         }
     }
@@ -136,10 +136,11 @@ fun ApduCard(command: String) {
 fun OptionsQuestion(
     modifier: Modifier = Modifier,
     question: String,
+    enabled: Boolean = true
 ) {
     val questionSplited = question.split("|")
     val radioOptions = listOf(questionSplited[1], questionSplited[2], questionSplited[3], questionSplited[4])
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+    val (selectedOption, onOptionSelected) = remember(question) { mutableStateOf(radioOptions[0]) }
     // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
     Column(modifier.selectableGroup()) {
         Text(questionSplited[0])
@@ -150,8 +151,13 @@ fun OptionsQuestion(
                     .height(56.dp)
                     .selectable(
                         selected = (text == selectedOption),
-                        onClick = { onOptionSelected(text) },
-                        role = Role.RadioButton
+                        onClick = {
+                            if (enabled) {
+                                onOptionSelected(text)
+                            } else null
+                        },
+                        role = Role.RadioButton,
+                        enabled = enabled
                     )
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
