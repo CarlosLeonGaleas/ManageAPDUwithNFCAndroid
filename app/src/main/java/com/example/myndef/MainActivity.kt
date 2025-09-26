@@ -105,25 +105,25 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
     val scrollState = rememberScrollState()
 
     // Estados observables del ViewModel
-    val actualMessage by viewModel.actualMessage.collectAsState()
+    val lastLogin by viewModel.lastLogin.collectAsState()
+    val isLoggedIn by viewModel.isLogged.collectAsState()
     val nameText by viewModel.nameText.collectAsState()
     val phoneNumber by viewModel.phoneNumber.collectAsState()
     val statusText by viewModel.statusText.collectAsState()
     val requestText by viewModel.requestText.collectAsState()
     val phoneNumberValid by viewModel.phoneNumberValid.collectAsState()
 
-    var isLoggedIn by remember { mutableStateOf(false) }
 
     // Actualizar el mensaje actual cuando cambie
     LaunchedEffect(Unit) {
-        viewModel.updateActualMessage(MessageManager.getMessage())
+        viewModel.updateLastLogin(MessageManager.getMessage())
     }
 
     if (!isLoggedIn) {
         LoginScreen(
             nameText = nameText,
             phoneNumber = phoneNumber,
-            statusText = actualMessage,
+            lastLogin = lastLogin,
             onNameChange = viewModel::updateNameText,
             onPhoneChange = viewModel::updatePhoneNumber,
             onPhoneNumberValid = viewModel::updatePhoneNumberValid,
@@ -132,10 +132,10 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
                     viewModel.updateStatusText("El número de teléfono ingresado contiene errores")
                 }
                 else if (nameText.isNotEmpty() && phoneNumber.isNotEmpty()) {
-                    MessageManager.setMessage("$nameText $phoneNumber")
+                    MessageManager.setMessage("$nameText|$phoneNumber")
                     viewModel.updateStatusText("Acerque su teléfono al lector NFC")
-                    viewModel.updateActualMessage(MessageManager.getMessage())
-                    isLoggedIn = true
+                    viewModel.updateLastLogin(MessageManager.getMessage())
+                    viewModel.updateIsLogged(true)
                 } else {
                     viewModel.updateStatusText("Por favor ingrese todos los datos para el iniciar el registro")
                 }
@@ -147,10 +147,10 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
             phone = phoneNumber,
             apduCommand = requestText,
             onLogout = {
-                isLoggedIn = false
-                MessageManager.setMessage("No se ha iniciado sesión")
-                viewModel.updateActualMessage(MessageManager.getMessage())
-                viewModel.updateStatusText("")
+                viewModel.updateIsLogged(false)
+                MessageManager.setMessage("CLOSED SESSION")
+                viewModel.updateLastLogin(MessageManager.getMessage())
+                viewModel.updateStatusText("CLOSED SESSION")
             }
         )
     }

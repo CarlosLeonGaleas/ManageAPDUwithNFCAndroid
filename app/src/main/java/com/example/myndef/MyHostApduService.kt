@@ -92,7 +92,14 @@ class MyHostApduService : HostApduService() {
         return when {
             // SELECT AID - Seleccionar aplicación
             commandApdu.contentEquals(SELECT_APDU) -> {
-                val responseMessage = "App NFC Conectada - ${MessageManager.getMessage()}"
+                val isLoggedIn = MainActivityViewModel.instance?.getIsLogged()?.value
+                var responseMessage = "App NFC Conectada"
+                if (isLoggedIn == true){
+                    responseMessage = responseMessage + " - ${MessageManager.getMessage()}"
+                }
+                else{
+                    responseMessage = "$responseMessage - CLOSED SESSION"
+                }
                 broadcastCommand("STATUS_DATA:EMPTY")
                 createResponse(responseMessage.toByteArray())
             }

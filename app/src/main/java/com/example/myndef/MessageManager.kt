@@ -23,6 +23,6 @@ object MessageManager {
     // Función para obtener el último mensaje almacenado
     fun getMessage(): String {
         // Retorna el mensaje guardado o el valor por defecto si no existe
-        return sharedPreferences.getString(KEY_MESSAGE, "No se ha iniciado sesión") ?: "No se ha iniciado sesión"
+        return sharedPreferences.getString(KEY_MESSAGE, "CLOSED SESSION") ?: "CLOSED SESSION"
     }
 }

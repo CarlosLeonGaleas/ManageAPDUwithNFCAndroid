@@ -3,6 +3,7 @@ package com.example.myndef.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,7 +41,7 @@ import com.example.myndef.R
 fun LoginScreen(
     nameText: String,
     phoneNumber: String,
-    statusText: String,
+    lastLogin: String,
     onNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onLoginClick: () -> Unit,
@@ -81,17 +83,64 @@ fun LoginScreen(
                 contentDescription = "Ingresar",
             )
         }
+        val parts = lastLogin.split("|")
+        val nombreCompleto = parts.getOrNull(0) ?: ""
+        val numeroTelefonico = parts.getOrNull(1) ?: ""
+        fun useLastDataLogin() {
+            onNameChange(nombreCompleto)
+            onPhoneChange(numeroTelefonico)
+            onPhoneNumberValid(true)
+        }
+        if (nombreCompleto != "" && numeroTelefonico != ""){
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Text(
-                text = statusText,
-                modifier = Modifier.padding(16.dp),
-                fontSize = 14.sp
+                Text(
+                    text = "Información de último registro: ",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                // Fila Nombre
+                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                    Text(
+                        text = "Nombre: ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = nombreCompleto,
+                        fontSize = 14.sp
+                    )
+                }
+                // Fila Teléfono
+                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                    Text(
+                        text = "Teléfono: ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = numeroTelefonico,
+                        fontSize = 14.sp
+                    )
+                }
 
-            )
+                //Botón de reutilización de credenciales
+                Button(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onClick = { useLastDataLogin() }
+                ) {
+                    Text("Usar estos datos")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_up),
+                        contentDescription = "Usar estos datos",
+                    )
+                }
+            }
         }
     }
 }
