@@ -19,12 +19,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -33,6 +37,7 @@ import com.example.myndef.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -42,7 +47,6 @@ fun MainScreen(
     onLogout: () -> Unit,
     viewModel: MainScreenViewModel = viewModel()
 ) {
-    // Estados observables del ViewModel
     val status by viewModel.status.collectAsState()
     val q1 by viewModel.q1.collectAsState()
     val optionQ1Selected by viewModel.q1Selected.collectAsState()
@@ -55,80 +59,99 @@ fun MainScreen(
     val q5 by viewModel.q5.collectAsState()
     val optionQ5Selected by viewModel.q5Selected.collectAsState()
 
-    fun onConfirm(){
-        viewModel.updateStatus("CONFIRMED")
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun onConfirm() {
+        if (optionQ1Selected == null || optionQ2Selected == null || optionQ3Selected == null || optionQ4Selected == null || optionQ5Selected == null) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Por favor, responda todas las preguntas")
+            }
+            return
+        }
+        else{
+            if (status != "CONFIRMED") {
+                viewModel.updateStatus("CONFIRMED")
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
+                }
+            }
+            else{
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
+                }
+            }
+        }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        UserCard(name = name, phone = phone, onLogout = onLogout)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            UserCard(name = name, phone = phone, onLogout = onLogout)
 
-        if (status == "EMPTY"){
-            Text("Acerque su teléfono para acceder al cuestionario")
-        }
-
-        ApduCard(apduCommand)
-
-        if (status == "COMPLETED" || status == "CONFIRMED"){
-            OptionsQuestion(
-                question = q1,
-                enabled = status == "COMPLETED",
-                optionSelected = optionQ1Selected,
-                updateSelected = { optionSelected: Int? ->
-                    viewModel.updateQ1Selected(optionSelected)
-                }
-            )
-            OptionsQuestion(
-                question = q2,
-                enabled = status == "COMPLETED",
-                optionSelected = optionQ2Selected,
-                updateSelected = { optionSelected: Int? ->
-                    viewModel.updateQ2Selected(optionSelected)
-                }
-            )
-            OptionsQuestion(
-                question = q3,
-                enabled = status == "COMPLETED",
-                optionSelected = optionQ3Selected,
-                updateSelected = { optionSelected: Int? ->
-                    viewModel.updateQ3Selected(optionSelected)
-                }
-            )
-            OptionsQuestion(
-                question = q4,
-                enabled = status == "COMPLETED",
-                optionSelected = optionQ4Selected,
-                updateSelected = { optionSelected: Int? ->
-                    viewModel.updateQ4Selected(optionSelected)
-                }
-            )
-            OptionsQuestion(
-                question = q5,
-                enabled = status == "COMPLETED",
-                optionSelected = optionQ5Selected,
-                updateSelected = { optionSelected: Int? ->
-                    viewModel.updateQ5Selected(optionSelected)
-                }
-            )
-            Button(onClick = { onConfirm() }) {
-                Text("Confirmar Respuestas")
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    painter = painterResource(R.drawable.save_responses),
-                    contentDescription = "Confirmar Respuestas",
-                )
+            if (status == "EMPTY") {
+                Text("Acerque su teléfono para acceder al cuestionario")
             }
-            if (status == "CONFIRMED"){
-                Text("Acerque su teléfono al lector para ver y registrar su puntuación")
+
+            ApduCard(apduCommand)
+
+            if (status == "COMPLETED" || status == "CONFIRMED") {
+                OptionsQuestion(
+                    question = q1,
+                    enabled = status == "COMPLETED",
+                    optionSelected = optionQ1Selected,
+                    updateSelected = { viewModel.updateQ1Selected(it) }
+                )
+                OptionsQuestion(
+                    question = q2,
+                    enabled = status == "COMPLETED",
+                    optionSelected = optionQ2Selected,
+                    updateSelected = { viewModel.updateQ2Selected(it) }
+                )
+                OptionsQuestion(
+                    question = q3,
+                    enabled = status == "COMPLETED",
+                    optionSelected = optionQ3Selected,
+                    updateSelected = { viewModel.updateQ3Selected(it) }
+                )
+                OptionsQuestion(
+                    question = q4,
+                    enabled = status == "COMPLETED",
+                    optionSelected = optionQ4Selected,
+                    updateSelected = { viewModel.updateQ4Selected(it) }
+                )
+                OptionsQuestion(
+                    question = q5,
+                    enabled = status == "COMPLETED",
+                    optionSelected = optionQ5Selected,
+                    updateSelected = { viewModel.updateQ5Selected(it) }
+                )
+
+                Button(onClick = { onConfirm() }) {
+                    Text("Confirmar Respuestas")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(R.drawable.save_responses),
+                        contentDescription = "Confirmar Respuestas",
+                    )
+                }
+
+                if (status == "CONFIRMED") {
+                    Text("Acerque su teléfono al lector para ver y registrar su puntuación")
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun UserCard(name: String, phone: String, onLogout: () -> Unit) {
