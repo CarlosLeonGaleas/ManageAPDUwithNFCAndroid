@@ -140,7 +140,8 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
                 MessageManager.setMessage("CLOSED_SESSION")
                 viewModel.updateLastLogin(MessageManager.getMessage())
                 viewModel.updateStatusFase("INITIAL_LOGIN")
-            }
+            },
+            mainViewModel = viewModel
         )
     }
 }

@@ -251,7 +251,7 @@ class MyHostApduService : HostApduService() {
             return createResponse("QUIZ_CONFIRMED".toByteArray())
         }
         else{
-            broadcastCommand("UPDATE_FASE:QUIZ_INICIADO")
+            broadcastCommand("UPDATE_FASE:QUIZ_INICIADO_$expectedFragments")
             return createResponse("INIT_OK".toByteArray())
         }
     }
@@ -305,6 +305,7 @@ class MyHostApduService : HostApduService() {
         transferState = TransferState.RECEIVING_FRAGMENTS
 
         Log.d("APDU", "Fragmento ${header.currentFragment} almacenado correctamente (${fragmentData.size} bytes)")
+        broadcastCommand("UPDATE_FASE:QUIZ_FRAGMENTO${header.currentFragment + 1}_DE${expectedFragments}_OK")
         broadcastCommand("FRAGMENT_OK:Fragmento ${header.currentFragment + 1}/${expectedFragments} recibido")
 
         return createResponse("FRAG_OK".toByteArray())

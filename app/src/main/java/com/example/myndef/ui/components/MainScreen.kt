@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -26,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myndef.MainActivityViewModel
-import com.example.myndef.MyHostApduService
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,8 +46,10 @@ fun MainScreen(
     phone: String,
     apduCommand: String,
     onLogout: () -> Unit,
+    mainViewModel: MainActivityViewModel,
     viewModel: MainScreenViewModel = viewModel()
 ) {
+    val fase by mainViewModel.statusFase.collectAsState()
     val status by viewModel.status.collectAsState()
     val q1 by viewModel.q1.collectAsState()
     val optionQ1Selected by viewModel.q1Selected.collectAsState()
@@ -63,6 +64,11 @@ fun MainScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Extraer el número total de fragmentos y calcular el progreso
+    val progressData = remember(fase) {
+        calculateProgress(fase)
+    }
 
     fun onConfirm() {
         if (optionQ1Selected == null || optionQ2Selected == null || optionQ3Selected == null || optionQ4Selected == null || optionQ5Selected == null) {
@@ -106,7 +112,20 @@ fun MainScreen(
 
             ApduCard(apduCommand)
 
-            if (status == "COMPLETED" || status == "CONFIRMED") {
+            // Mostrar ProgressBar cuando la fase contiene "QUIZ_INICIADO" o "QUIZ_FRAGMENTO"
+            if (progressData.showProgress) {
+                LinearProgressIndicator(
+                    progress = progressData.progress,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    text = "Recibiendo fragmentos... ${progressData.fragmentosRecibidos}/${progressData.totalFragmentos}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (fase == "QUIZ_RECIBIDO" || status == "CONFIRMED") {
                 OptionsQuestion(
                     question = q1,
                     enabled = status == "COMPLETED",
@@ -155,6 +174,55 @@ fun MainScreen(
     }
 }
 
+data class ProgressData(
+    val showProgress: Boolean,
+    val progress: Float,
+    val totalFragmentos: Int,
+    val fragmentosRecibidos: Int
+)
+
+fun calculateProgress(fase: String): ProgressData {
+    // Verificar si debemos mostrar el progress
+    val showProgress = fase.contains("QUIZ_INICIADO") || fase.contains("QUIZ_FRAGMENTO")
+
+    if (!showProgress) {
+        return ProgressData(false, 0f, 0, 0)
+    }
+
+    var totalFragmentos = 0
+    var fragmentosRecibidos = 0
+
+    // Extraer información según el formato de la fase
+    if (fase.startsWith("QUIZ_INICIADO_")) {
+        // Formato: QUIZ_INICIADO_#
+        totalFragmentos = fase.substringAfter("QUIZ_INICIADO_").toIntOrNull() ?: 0
+        fragmentosRecibidos = 0
+    } else if (fase.contains("QUIZ_FRAGMENTO") && fase.contains("_DE") && fase.endsWith("_OK")) {
+        // Formato: QUIZ_FRAGMENTO#_DE#_OK
+        // Ejemplo: QUIZ_FRAGMENTO1_DE5_OK
+        val parts = fase.substringAfter("QUIZ_FRAGMENTO").substringBefore("_OK")
+        val numbers = parts.split("_DE")
+
+        if (numbers.size == 2) {
+            fragmentosRecibidos = numbers[0].toIntOrNull() ?: 0
+            totalFragmentos = numbers[1].toIntOrNull() ?: 0
+        }
+    }
+
+    // Calcular el progreso
+    val progress = if (totalFragmentos > 0) {
+        fragmentosRecibidos.toFloat() / totalFragmentos.toFloat()
+    } else {
+        0f
+    }
+
+    return ProgressData(
+        showProgress = true,
+        progress = progress,
+        totalFragmentos = totalFragmentos,
+        fragmentosRecibidos = fragmentosRecibidos
+    )
+}
 
 @Composable
 fun UserCard(name: String, phone: String, onLogout: () -> Unit) {
@@ -244,5 +312,3 @@ fun OptionsQuestion(
         }
     }
 }
-
-
