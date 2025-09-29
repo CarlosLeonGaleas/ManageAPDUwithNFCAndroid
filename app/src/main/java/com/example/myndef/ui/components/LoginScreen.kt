@@ -19,12 +19,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,7 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myndef.MainActivityViewModel
+import com.example.myndef.MessageManager
 import com.example.myndef.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -44,101 +52,130 @@ fun LoginScreen(
     lastLogin: String,
     onNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
-    onLoginClick: () -> Unit,
-    onPhoneNumberValid: (Boolean) -> Unit
+    onPhoneNumberValid: (Boolean) -> Unit,
+    isPhoneNumberValid: Boolean,
+    viewModel: MainActivityViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.departamentoinv),
-            contentDescription = "Departamento Inv",
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun onLogin() {
+        if (nameText.isNotEmpty() && phoneNumber.isNotEmpty() && isPhoneNumberValid) {
+            MessageManager.setMessage("$nameText|$phoneNumber")
+            viewModel.updateLastLogin(MessageManager.getMessage())
+            viewModel.updateIsLogged(true)
+        }
+        else if (nameText.isEmpty() || phoneNumber.isEmpty()){
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Por favor ingrese todos los datos para ingresar")
+            }
+        } else if (!isPhoneNumberValid){
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("El número de teléfono ingresado contiene errores")
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(99.dp)
-        )
-
-        OutlinedTextField(
-            value = nameText,
-            onValueChange = onNameChange,
-            label = { Text("Nombre completo") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        PhoneNumberInput(phoneNumber = phoneNumber, onPhoneNumberChange = onPhoneChange, onPhoneNumberValid = onPhoneNumberValid)
-
-        Button(
-            onClick = onLoginClick,
-            modifier = Modifier.fillMaxWidth()
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Registrar e Ingresar")
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                painter = painterResource(R.drawable.login),
-                contentDescription = "Ingresar",
+            Image(
+                painter = painterResource(id = R.drawable.departamentoinv),
+                contentDescription = "Departamento Inv",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(99.dp)
             )
-        }
-        val parts = lastLogin.split("|")
-        val nombreCompleto = parts.getOrNull(0) ?: ""
-        val numeroTelefonico = parts.getOrNull(1) ?: ""
-        fun useLastDataLogin() {
-            onNameChange(nombreCompleto)
-            onPhoneChange(numeroTelefonico)
-            onPhoneNumberValid(true)
-        }
-        if (nombreCompleto != "" && numeroTelefonico != ""){
-            Card(
+
+            OutlinedTextField(
+                value = nameText,
+                onValueChange = onNameChange,
+                label = { Text("Nombre completo") },
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                singleLine = true
+            )
+
+            PhoneNumberInput(
+                phoneNumber = phoneNumber,
+                onPhoneNumberChange = onPhoneChange,
+                onPhoneNumberValid = onPhoneNumberValid
+            )
+
+            Button(
+                onClick = { onLogin() },
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                Text(
-                    text = "Información de último registro: ",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                Text("Registrar e Ingresar")
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(R.drawable.login),
+                    contentDescription = "Ingresar",
                 )
-                // Fila Nombre
-                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                    Text(
-                        text = "Nombre: ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = nombreCompleto,
-                        fontSize = 14.sp
-                    )
-                }
-                // Fila Teléfono
-                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                    Text(
-                        text = "Teléfono: ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = numeroTelefonico,
-                        fontSize = 14.sp
-                    )
-                }
-
-                //Botón de reutilización de credenciales
-                Button(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    onClick = { useLastDataLogin() }
+            }
+            val parts = lastLogin.split("|")
+            val nombreCompleto = parts.getOrNull(0) ?: ""
+            val numeroTelefonico = parts.getOrNull(1) ?: ""
+            fun useLastDataLogin() {
+                onNameChange(nombreCompleto)
+                onPhoneChange(numeroTelefonico)
+                onPhoneNumberValid(true)
+            }
+            if (nombreCompleto != "" && numeroTelefonico != "") {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Text("Usar estos datos")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(R.drawable.arrow_up),
-                        contentDescription = "Usar estos datos",
+
+                    Text(
+                        text = "Información de último registro: ",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
+                    // Fila Nombre
+                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        Text(
+                            text = "Nombre: ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = nombreCompleto,
+                            fontSize = 14.sp
+                        )
+                    }
+                    // Fila Teléfono
+                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        Text(
+                            text = "Teléfono: ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = numeroTelefonico,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    //Botón de reutilización de credenciales
+                    Button(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        onClick = { useLastDataLogin() }
+                    ) {
+                        Text("Usar estos datos")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_up),
+                            contentDescription = "Usar estos datos",
+                        )
+                    }
                 }
             }
         }

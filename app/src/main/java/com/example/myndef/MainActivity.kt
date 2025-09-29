@@ -127,19 +127,8 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
             onNameChange = viewModel::updateNameText,
             onPhoneChange = viewModel::updatePhoneNumber,
             onPhoneNumberValid = viewModel::updatePhoneNumberValid,
-            onLoginClick = {
-                if (!phoneNumberValid){
-                    viewModel.updateStatusText("El número de teléfono ingresado contiene errores")
-                }
-                else if (nameText.isNotEmpty() && phoneNumber.isNotEmpty()) {
-                    MessageManager.setMessage("$nameText|$phoneNumber")
-                    viewModel.updateStatusText("Acerque su teléfono al lector NFC")
-                    viewModel.updateLastLogin(MessageManager.getMessage())
-                    viewModel.updateIsLogged(true)
-                } else {
-                    viewModel.updateStatusText("Por favor ingrese todos los datos para el iniciar el registro")
-                }
-            }
+            isPhoneNumberValid = phoneNumberValid,
+            viewModel = viewModel
         )
     } else {
         MainScreen(
