@@ -37,6 +37,8 @@ import com.example.myndef.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myndef.MainActivityViewModel
+import com.example.myndef.MyHostApduService
 import kotlinx.coroutines.launch
 
 @Composable
@@ -71,6 +73,7 @@ fun MainScreen(
         }
         else{
             if (status != "CONFIRMED") {
+                MainActivityViewModel.instance?.updateStatusFase("QUIZ_CONFIRMED")
                 viewModel.updateStatus("CONFIRMED")
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")

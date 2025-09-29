@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 class MainActivityViewModel : ViewModel() {
 
     // Estados privados mutables
-    private val _lastLogin = MutableStateFlow("CLOSED SESSION")
+    private val _lastLogin = MutableStateFlow("CLOSED_SESSION")
     private val _isLogged = MutableStateFlow(false)
     private val _nameText = MutableStateFlow("")
     private val _phoneNumber = MutableStateFlow("09")
-    private val _statusText = MutableStateFlow("")
+    private val _statusFase = MutableStateFlow("INITIAL_LOGIN")
     private val _requestText = MutableStateFlow("APDU command")
     private val _phoneNumberValid= MutableStateFlow(false)
 
@@ -21,7 +21,7 @@ class MainActivityViewModel : ViewModel() {
     val isLogged: StateFlow<Boolean> = _isLogged.asStateFlow()
     val nameText: StateFlow<String> = _nameText.asStateFlow()
     val phoneNumber: StateFlow<String> = _phoneNumber.asStateFlow()
-    val statusText: StateFlow<String> = _statusText.asStateFlow()
+    val statusFase: StateFlow<String> = _statusFase.asStateFlow()
     val requestText: StateFlow<String> = _requestText.asStateFlow()
     val phoneNumberValid: StateFlow<Boolean> = _phoneNumberValid.asStateFlow()
 
@@ -32,10 +32,6 @@ class MainActivityViewModel : ViewModel() {
 
     init {
         instance = this
-    }
-
-    fun getIsLogged(): StateFlow<Boolean> {
-        return isLogged
     }
 
     // Funciones para actualizar los estados
@@ -55,8 +51,8 @@ class MainActivityViewModel : ViewModel() {
         _phoneNumber.value = text
     }
 
-    fun updateStatusText(text: String) {
-        _statusText.value = text
+    fun updateStatusFase(text: String) {
+        _statusFase.value = text
     }
 
     fun updateRequestText(text: String) {

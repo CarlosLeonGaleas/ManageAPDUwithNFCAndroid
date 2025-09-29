@@ -92,15 +92,14 @@ class MyHostApduService : HostApduService() {
         return when {
             // SELECT AID - Seleccionar aplicación
             commandApdu.contentEquals(SELECT_APDU) -> {
-                val isLoggedIn = MainActivityViewModel.instance?.getIsLogged()?.value
+                val isLoggedIn = MainActivityViewModel.instance?.isLogged?.value
                 var responseMessage = "App NFC Conectada"
                 if (isLoggedIn == true){
                     responseMessage = responseMessage + " - ${MessageManager.getMessage()}"
                 }
                 else{
-                    responseMessage = "$responseMessage - CLOSED SESSION"
+                    responseMessage = "$responseMessage - CLOSED_SESSION"
                 }
-                broadcastCommand("STATUS_DATA:EMPTY")
                 createResponse(responseMessage.toByteArray())
             }
 
@@ -246,8 +245,15 @@ class MyHostApduService : HostApduService() {
         }
 
         broadcastCommand("INIT_QUIZ:Iniciando recepción de $expectedFragments fragmentos")
-
-        return createResponse("INIT_OK".toByteArray())
+        if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_RECIBIDO"){
+            return createResponse("QUIZ_RECIBIDO".toByteArray())
+        } else if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_CONFIRMED"){
+            return createResponse("QUIZ_CONFIRMED".toByteArray())
+        }
+        else{
+            broadcastCommand("UPDATE_FASE:QUIZ_INICIADO")
+            return createResponse("INIT_OK".toByteArray())
+        }
     }
 
     private fun handleFragment(header: FragmentHeader, fullData: ByteArray): ByteArray {
@@ -327,6 +333,7 @@ class MyHostApduService : HostApduService() {
             processQuizData()
             broadcastCommand("TRANSFER_COMPLETE:Quiz procesado exitosamente")
             broadcastCommand("STATUS_DATA:COMPLETED")
+            broadcastCommand("UPDATE_FASE:QUIZ_RECIBIDO")
             return createResponse("END_OK".toByteArray())
         } else {
             transferState = TransferState.ERROR
@@ -615,7 +622,7 @@ class MyHostApduService : HostApduService() {
         return response
     }
 
-    private fun broadcastCommand(command: String) {
+    fun broadcastCommand(command: String) {
         val intent = Intent("APDU_COMMAND_RECEIVED").apply {
             putExtra("APDU_COMMAND", command)
         }

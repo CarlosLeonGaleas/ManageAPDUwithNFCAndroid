@@ -30,6 +30,10 @@ class MainActivity : ComponentActivity() {
 
             // Actualizar el ViewModel cuando se reciba un comando
             when {
+                command.startsWith("UPDATE_FASE:") -> {
+                    val value = command.substringAfter("UPDATE_FASE:")
+                    MainActivityViewModel.instance?.updateStatusFase(value)
+                }
                 command.startsWith("STATUS_DATA:") -> {
                     val value = command.substringAfter("STATUS_DATA:")
                     MainScreenViewModel.instance?.updateStatus(value)
@@ -54,8 +58,7 @@ class MainActivity : ComponentActivity() {
                     val value = command.substringAfter("UPDATE_Q5:")
                     MainScreenViewModel.instance?.updateQ5(value)
                 }
-                command.startsWith("NFC Desconectado") -> {
-                    MainActivityViewModel.instance?.updateStatusText("NFC Desconectado")
+                command.startsWith("NFC_DISCONNECTED") -> {
                     MainActivityViewModel.instance?.updateRequestText("Conexión perdida")
                 }
                 else -> {
@@ -101,15 +104,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
-    val context = LocalContext.current
-    val scrollState = rememberScrollState()
 
     // Estados observables del ViewModel
     val lastLogin by viewModel.lastLogin.collectAsState()
     val isLoggedIn by viewModel.isLogged.collectAsState()
     val nameText by viewModel.nameText.collectAsState()
     val phoneNumber by viewModel.phoneNumber.collectAsState()
-    val statusText by viewModel.statusText.collectAsState()
     val requestText by viewModel.requestText.collectAsState()
     val phoneNumberValid by viewModel.phoneNumberValid.collectAsState()
 
@@ -137,9 +137,9 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
             apduCommand = requestText,
             onLogout = {
                 viewModel.updateIsLogged(false)
-                MessageManager.setMessage("CLOSED SESSION")
+                MessageManager.setMessage("CLOSED_SESSION")
                 viewModel.updateLastLogin(MessageManager.getMessage())
-                viewModel.updateStatusText("CLOSED SESSION")
+                viewModel.updateStatusFase("INITIAL_LOGIN")
             }
         )
     }
