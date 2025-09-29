@@ -45,10 +45,15 @@ fun MainScreen(
     // Estados observables del ViewModel
     val status by viewModel.status.collectAsState()
     val q1 by viewModel.q1.collectAsState()
+    val optionQ1Selected by viewModel.q1Selected.collectAsState()
     val q2 by viewModel.q2.collectAsState()
+    val optionQ2Selected by viewModel.q2Selected.collectAsState()
     val q3 by viewModel.q3.collectAsState()
+    val optionQ3Selected by viewModel.q3Selected.collectAsState()
     val q4 by viewModel.q4.collectAsState()
+    val optionQ4Selected by viewModel.q4Selected.collectAsState()
     val q5 by viewModel.q5.collectAsState()
+    val optionQ5Selected by viewModel.q5Selected.collectAsState()
 
     fun onConfirm(){
         viewModel.updateStatus("CONFIRMED")
@@ -70,11 +75,46 @@ fun MainScreen(
         ApduCard(apduCommand)
 
         if (status == "COMPLETED" || status == "CONFIRMED"){
-            OptionsQuestion(question = q1, enabled = status == "COMPLETED")
-            OptionsQuestion(question = q2, enabled = status == "COMPLETED")
-            OptionsQuestion(question = q3, enabled = status == "COMPLETED")
-            OptionsQuestion(question = q4, enabled = status == "COMPLETED")
-            OptionsQuestion(question = q5, enabled = status == "COMPLETED")
+            OptionsQuestion(
+                question = q1,
+                enabled = status == "COMPLETED",
+                optionSelected = optionQ1Selected,
+                updateSelected = { optionSelected: Int? ->
+                    viewModel.updateQ1Selected(optionSelected)
+                }
+            )
+            OptionsQuestion(
+                question = q2,
+                enabled = status == "COMPLETED",
+                optionSelected = optionQ2Selected,
+                updateSelected = { optionSelected: Int? ->
+                    viewModel.updateQ2Selected(optionSelected)
+                }
+            )
+            OptionsQuestion(
+                question = q3,
+                enabled = status == "COMPLETED",
+                optionSelected = optionQ3Selected,
+                updateSelected = { optionSelected: Int? ->
+                    viewModel.updateQ3Selected(optionSelected)
+                }
+            )
+            OptionsQuestion(
+                question = q4,
+                enabled = status == "COMPLETED",
+                optionSelected = optionQ4Selected,
+                updateSelected = { optionSelected: Int? ->
+                    viewModel.updateQ4Selected(optionSelected)
+                }
+            )
+            OptionsQuestion(
+                question = q5,
+                enabled = status == "COMPLETED",
+                optionSelected = optionQ5Selected,
+                updateSelected = { optionSelected: Int? ->
+                    viewModel.updateQ5Selected(optionSelected)
+                }
+            )
             Button(onClick = { onConfirm() }) {
                 Text("Confirmar Respuestas")
                 Spacer(modifier = Modifier.width(8.dp))
@@ -136,24 +176,26 @@ fun ApduCard(command: String) {
 fun OptionsQuestion(
     modifier: Modifier = Modifier,
     question: String,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    optionSelected: Int?,
+    updateSelected: (Int?) -> Unit
 ) {
     val questionSplited = question.split("|")
     val radioOptions = listOf(questionSplited[1], questionSplited[2], questionSplited[3], questionSplited[4])
-    val (selectedOption, onOptionSelected) = remember(question) { mutableStateOf(radioOptions[0]) }
+    // val (selectedOption, onOptionSelected) = remember(question) { mutableStateOf(radioOptions[0]) }
     // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
     Column(modifier.selectableGroup()) {
         Text(questionSplited[0])
-        radioOptions.forEach { text ->
+        radioOptions.forEachIndexed { index, text ->
             Row(
                 Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .selectable(
-                        selected = (text == selectedOption),
+                        selected = (index == optionSelected),
                         onClick = {
                             if (enabled) {
-                                onOptionSelected(text)
+                                updateSelected(index)
                             } else null
                         },
                         role = Role.RadioButton,
@@ -163,8 +205,9 @@ fun OptionsQuestion(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = (text == selectedOption),
-                    onClick = null // null recommended for accessibility with screen readers
+                    selected = (index == optionSelected),
+                    onClick = null, // null recommended for accessibility with screen readers
+                    enabled = enabled
                 )
                 Text(
                     text = text,
