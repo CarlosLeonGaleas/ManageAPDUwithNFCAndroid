@@ -1,5 +1,9 @@
 package com.example.myndef.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,11 +30,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myndef.MainActivityViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,9 +76,54 @@ fun MainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    var showDialog by remember { mutableStateOf(false) }
+    var aciertos by remember { mutableStateOf(0) }
+
     // Extraer el número total de fragmentos y calcular el progreso
     val progressData = remember(fase) {
         calculateProgress(fase)
+    }
+
+    // Control de visibilidad para las animaciones
+    var showQuestions by remember { mutableStateOf(false) }
+
+    LaunchedEffect(fase, status) {
+        if (fase == "QUIZ_RECIBIDO" || status == "CONFIRMED") {
+            showQuestions = false
+            delay(50) // Pequeño delay para resetear la animación
+            showQuestions = true
+        }
+    }
+
+    fun calcularAciertos(): Int {
+        var correctas = 0
+
+        if (optionQ1Selected != null) {
+            val correctIndex = q1.split("|").getOrNull(5)?.toIntOrNull() ?: -1
+            if (optionQ1Selected == correctIndex) correctas++
+        }
+
+        if (optionQ2Selected != null) {
+            val correctIndex = q2.split("|").getOrNull(5)?.toIntOrNull() ?: -1
+            if (optionQ2Selected == correctIndex) correctas++
+        }
+
+        if (optionQ3Selected != null) {
+            val correctIndex = q3.split("|").getOrNull(5)?.toIntOrNull() ?: -1
+            if (optionQ3Selected == correctIndex) correctas++
+        }
+
+        if (optionQ4Selected != null) {
+            val correctIndex = q4.split("|").getOrNull(5)?.toIntOrNull() ?: -1
+            if (optionQ4Selected == correctIndex) correctas++
+        }
+
+        if (optionQ5Selected != null) {
+            val correctIndex = q5.split("|").getOrNull(5)?.toIntOrNull() ?: -1
+            if (optionQ5Selected == correctIndex) correctas++
+        }
+
+        return correctas
     }
 
     fun onConfirm() {
@@ -78,6 +134,9 @@ fun MainScreen(
             return
         }
         else{
+            aciertos = calcularAciertos()
+            showDialog = true
+
             if (status != "CONFIRMED") {
                 MainActivityViewModel.instance?.updateStatusFase("QUIZ_CONFIRMED")
                 viewModel.updateStatus("CONFIRMED")
@@ -126,50 +185,153 @@ fun MainScreen(
             }
 
             if (fase == "QUIZ_RECIBIDO" || status == "CONFIRMED") {
-                OptionsQuestion(
-                    question = q1,
-                    enabled = status == "COMPLETED",
-                    optionSelected = optionQ1Selected,
-                    updateSelected = { viewModel.updateQ1Selected(it) }
-                )
-                OptionsQuestion(
-                    question = q2,
-                    enabled = status == "COMPLETED",
-                    optionSelected = optionQ2Selected,
-                    updateSelected = { viewModel.updateQ2Selected(it) }
-                )
-                OptionsQuestion(
-                    question = q3,
-                    enabled = status == "COMPLETED",
-                    optionSelected = optionQ3Selected,
-                    updateSelected = { viewModel.updateQ3Selected(it) }
-                )
-                OptionsQuestion(
-                    question = q4,
-                    enabled = status == "COMPLETED",
-                    optionSelected = optionQ4Selected,
-                    updateSelected = { viewModel.updateQ4Selected(it) }
-                )
-                OptionsQuestion(
-                    question = q5,
-                    enabled = status == "COMPLETED",
-                    optionSelected = optionQ5Selected,
-                    updateSelected = { viewModel.updateQ5Selected(it) }
-                )
-
-                Button(onClick = { onConfirm() }) {
-                    Text("Confirmar Respuestas")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(R.drawable.save_responses),
-                        contentDescription = "Confirmar Respuestas",
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 600, delayMillis = 0)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 600))
+                ) {
+                    OptionsQuestion(
+                        question = q1,
+                        enabled = status == "COMPLETED",
+                        optionSelected = optionQ1Selected,
+                        updateSelected = { viewModel.updateQ1Selected(it) }
                     )
                 }
 
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 600, delayMillis = 100)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 600, delayMillis = 100))
+                ) {
+                    OptionsQuestion(
+                        question = q2,
+                        enabled = status == "COMPLETED",
+                        optionSelected = optionQ2Selected,
+                        updateSelected = { viewModel.updateQ2Selected(it) }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 600, delayMillis = 200)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 600, delayMillis = 200))
+                ) {
+                    OptionsQuestion(
+                        question = q3,
+                        enabled = status == "COMPLETED",
+                        optionSelected = optionQ3Selected,
+                        updateSelected = { viewModel.updateQ3Selected(it) }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 600, delayMillis = 300)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 600, delayMillis = 300))
+                ) {
+                    OptionsQuestion(
+                        question = q4,
+                        enabled = status == "COMPLETED",
+                        optionSelected = optionQ4Selected,
+                        updateSelected = { viewModel.updateQ4Selected(it) }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 600, delayMillis = 400)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 600, delayMillis = 400))
+                ) {
+                    OptionsQuestion(
+                        question = q5,
+                        enabled = status == "COMPLETED",
+                        optionSelected = optionQ5Selected,
+                        updateSelected = { viewModel.updateQ5Selected(it) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 400, delayMillis = 400)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 400, delayMillis = 400))
+                ) {
+                    Button(
+                        onClick = { onConfirm() },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Confirmar Respuestas")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(R.drawable.save_responses),
+                            contentDescription = "Confirmar Respuestas",
+                        )
+                    }
+                }
+
                 if (status == "CONFIRMED") {
-                    Text("Acerque su teléfono al lector para ver y registrar su puntuación")
+                    Text(
+                        text = "Acerque su teléfono al lector para ver y registrar su puntuación",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
+        }
+
+        // Diálogo de resultados
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = "Resultados del Cuestionario",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                text = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Has acertado",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "$aciertos de 5",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "preguntas correctamente",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("OK")
+                    }
+                },
+                shape = RoundedCornerShape(16.dp)
+            )
         }
     }
 }
@@ -276,38 +438,57 @@ fun OptionsQuestion(
 ) {
     val questionSplited = question.split("|")
     val radioOptions = listOf(questionSplited[1], questionSplited[2], questionSplited[3], questionSplited[4])
-    // val (selectedOption, onOptionSelected) = remember(question) { mutableStateOf(radioOptions[0]) }
-    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-    Column(modifier.selectableGroup()) {
-        Text(questionSplited[0])
-        radioOptions.forEachIndexed { index, text ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .selectable(
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .selectableGroup()
+        ) {
+            Text(
+                text = questionSplited[0],
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            radioOptions.forEachIndexed { index, text ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (index == optionSelected),
+                            onClick = {
+                                if (enabled) {
+                                    updateSelected(index)
+                                } else null
+                            },
+                            role = Role.RadioButton,
+                            enabled = enabled
+                        )
+                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
                         selected = (index == optionSelected),
-                        onClick = {
-                            if (enabled) {
-                                updateSelected(index)
-                            } else null
-                        },
-                        role = Role.RadioButton,
+                        onClick = null,
                         enabled = enabled
                     )
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = (index == optionSelected),
-                    onClick = null, // null recommended for accessibility with screen readers
-                    enabled = enabled
-                )
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
             }
         }
     }
