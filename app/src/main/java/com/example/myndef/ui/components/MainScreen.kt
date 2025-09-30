@@ -72,12 +72,12 @@ fun MainScreen(
     val optionQ4Selected by viewModel.q4Selected.collectAsState()
     val q5 by viewModel.q5.collectAsState()
     val optionQ5Selected by viewModel.q5Selected.collectAsState()
+    val aciertos by viewModel.totalPoints.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     var showDialog by remember { mutableStateOf(false) }
-    var aciertos by remember { mutableStateOf(0) }
 
     // Extraer el número total de fragmentos y calcular el progreso
     val progressData = remember(fase) {
@@ -92,6 +92,11 @@ fun MainScreen(
             showQuestions = false
             delay(50) // Pequeño delay para resetear la animación
             showQuestions = true
+        }
+    }
+    LaunchedEffect(fase) {
+        if (fase == "QUIZ_CONFIRMED"){
+            showDialog = true
         }
     }
 
@@ -134,11 +139,12 @@ fun MainScreen(
             return
         }
         else{
-            aciertos = calcularAciertos()
-            showDialog = true
+            val puntos = calcularAciertos()
+            viewModel.updateTotalPoints(puntos)
+
 
             if (status != "CONFIRMED") {
-                MainActivityViewModel.instance?.updateStatusFase("QUIZ_CONFIRMED")
+                MainActivityViewModel.instance?.updateStatusFase("QUIZ_FINISHED")
                 viewModel.updateStatus("CONFIRMED")
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
@@ -283,9 +289,16 @@ fun MainScreen(
                     }
                 }
 
-                if (status == "CONFIRMED") {
+                if (fase == "QUIZ_FINISHED") {
                     Text(
                         text = "Acerque su teléfono al lector para ver y registrar su puntuación",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                else if (fase == "QUIZ_CONFIRMED"){
+                    Text(
+                        text = "Su puntaje fue: $aciertos. Ya se registró en la Base de Datos",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

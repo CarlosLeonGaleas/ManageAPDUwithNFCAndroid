@@ -7,6 +7,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import com.example.myndef.ui.components.MainScreenViewModel
 
 class MyHostApduService : HostApduService() {
     companion object {
@@ -168,6 +169,16 @@ class MyHostApduService : HostApduService() {
                     else -> "QUIZ_PENDING"
                 }
             }
+            0x14 -> { // Get Quiz Complete Points
+                if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_FINISHED") {
+                    val points = MainScreenViewModel.instance?.totalPoints?.value ?: 0
+                    MainActivityViewModel.instance?.updateStatusFase("QUIZ_CONFIRMED")
+                    "QUIZ_CONFIRMED_POINTS${points}"
+                }
+                else{
+                    "QUIZ_ERROR_POINTS"
+                }
+            }
             else -> {
                 "UNKNOWN_REQUEST"
             }
@@ -247,7 +258,9 @@ class MyHostApduService : HostApduService() {
         broadcastCommand("INIT_QUIZ:Iniciando recepción de $expectedFragments fragmentos")
         if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_RECIBIDO"){
             return createResponse("QUIZ_RECIBIDO".toByteArray())
-        } else if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_CONFIRMED"){
+        } else if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_FINISHED"){
+            return createResponse("QUIZ_FINISHED".toByteArray())
+        }else if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_CONFIRMED"){
             return createResponse("QUIZ_CONFIRMED".toByteArray())
         }
         else{

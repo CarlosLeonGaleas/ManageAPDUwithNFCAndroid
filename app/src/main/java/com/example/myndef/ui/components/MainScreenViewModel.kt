@@ -19,6 +19,7 @@ class MainScreenViewModel : ViewModel(){
     private val _q4Selected = MutableStateFlow<Int?>(null)
     private val _q5 = MutableStateFlow("")
     private val _q5Selected = MutableStateFlow<Int?>(null)
+    private val _totalPoints = MutableStateFlow<Int>(0)
 
     // Estados públicos inmutables
     val status: StateFlow<String> = _status.asStateFlow()
@@ -32,6 +33,7 @@ class MainScreenViewModel : ViewModel(){
     val q4Selected: StateFlow<Int?> = _q4Selected.asStateFlow()
     val q5: StateFlow<String> = _q5.asStateFlow()
     val q5Selected: StateFlow<Int?> = _q5Selected.asStateFlow()
+    val totalPoints: StateFlow<Int> = _totalPoints.asStateFlow()
 
     // Instancia estática para acceso desde el BroadcastReceiver
     companion object {
@@ -79,5 +81,8 @@ class MainScreenViewModel : ViewModel(){
     }
     fun updateQ5Selected(selected: Int?){
         _q5Selected.value = selected
+    }
+    fun updateTotalPoints(points: Int){
+        _totalPoints.value = points
     }
 }
