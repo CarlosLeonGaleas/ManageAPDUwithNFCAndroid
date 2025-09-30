@@ -173,7 +173,7 @@ class MyHostApduService : HostApduService() {
                 if (MainActivityViewModel.instance?.statusFase?.value == "QUIZ_FINISHED") {
                     val points = MainScreenViewModel.instance?.totalPoints?.value ?: 0
                     MainActivityViewModel.instance?.updateStatusFase("QUIZ_CONFIRMED")
-                    "QUIZ_CONFIRMED_POINTS${points}"
+                    "QUIZ_CONFIRMED_${MessageManager.getMessage()}_POINTS${points}"
                 }
                 else{
                     "QUIZ_ERROR_POINTS"

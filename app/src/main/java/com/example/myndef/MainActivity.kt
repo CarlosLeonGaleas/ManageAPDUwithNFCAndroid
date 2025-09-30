@@ -140,6 +140,17 @@ fun PrincipalScreen(viewModel: MainActivityViewModel = viewModel()) {
                 MessageManager.setMessage("CLOSED_SESSION")
                 viewModel.updateLastLogin(MessageManager.getMessage())
                 viewModel.updateStatusFase("INITIAL_LOGIN")
+                MainScreenViewModel.instance?.updateStatus("EMPTY")
+                MainScreenViewModel.instance?.updateQ1("")
+                MainScreenViewModel.instance?.updateQ1Selected(null)
+                MainScreenViewModel.instance?.updateQ2("")
+                MainScreenViewModel.instance?.updateQ2Selected(null)
+                MainScreenViewModel.instance?.updateQ3("")
+                MainScreenViewModel.instance?.updateQ3Selected(null)
+                MainScreenViewModel.instance?.updateQ4("")
+                MainScreenViewModel.instance?.updateQ4Selected(null)
+                MainScreenViewModel.instance?.updateQ5("")
+                MainScreenViewModel.instance?.updateQ5Selected(null)
             },
             mainViewModel = viewModel
         )
