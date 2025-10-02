@@ -101,8 +101,9 @@ class MyHostApduService : HostApduService() {
                 else{
                     responseMessage = "$responseMessage - CLOSED_SESSION"
                 }
-                val isConfirmed = MainScreenViewModel.instance?.status?.value == "CONFIRMED"
-                if (isConfirmed){
+                val isFinished = MainScreenViewModel.instance?.status?.value == "CONFIRMED"
+                val wasConfirmed = MainActivityViewModel.instance?.statusFase?.value == "QUIZ_CONFIRMED"
+                if (isFinished && !wasConfirmed){
                     MainScreenViewModel.instance?.updateStatus("REGISTERING")
                 }
                 createResponse(responseMessage.toByteArray())

@@ -165,15 +165,15 @@ fun MainScreen(
             if (status != "CONFIRMED") {
                 MainActivityViewModel.instance?.updateStatusFase("QUIZ_FINISHED")
                 viewModel.updateStatus("CONFIRMED")
+                /*coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
+                }*/
+            }
+            /*else{
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
                 }
-            }
-            else{
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Acerque su teléfono al lector para mostrar y registrar su puntuación")
-                }
-            }
+            }*/
         }
     }
 
