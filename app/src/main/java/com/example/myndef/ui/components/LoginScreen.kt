@@ -46,6 +46,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -107,15 +108,18 @@ fun LoginScreen(
                         Image(
                             painter = painterResource(R.drawable.universitario_ru_blanco),
                             contentDescription = "Logo Universitario RU",
-                            modifier = Modifier.height(40.dp)
+                            modifier = Modifier.width(180.dp),
+                            contentScale = ContentScale.Fit
                         )
 
                         // Logo derecho (Departamento de Investigación)
                         Image(
                             painter = painterResource(R.drawable.departamentoinv_blanco),
                             contentDescription = "Logo Investigación",
-                            modifier = Modifier.height(40.dp)
+                            modifier = Modifier.height(40.dp),
+                            contentScale = ContentScale.Fit
                         )
+                        Spacer(modifier = Modifier.width(1.dp))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

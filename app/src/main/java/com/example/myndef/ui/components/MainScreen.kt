@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -187,29 +188,23 @@ fun MainScreen(
                         Image(
                             painter = painterResource(R.drawable.universitario_ru_blanco),
                             contentDescription = "Logo Universitario RU",
-                            modifier = Modifier.height(40.dp)
+                            modifier = Modifier.width(180.dp),
+                            contentScale = ContentScale.Fit
                         )
 
                         // Logo derecho (Departamento de Investigación)
                         Image(
                             painter = painterResource(R.drawable.departamentoinv_blanco),
                             contentDescription = "Logo Investigación",
-                            modifier = Modifier.height(40.dp)
+                            modifier = Modifier.height(40.dp),
+                            contentScale = ContentScale.Fit
                         )
+                        Spacer(modifier = Modifier.width(1.dp))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = InstitutionalBlue
-                ),
-                actions = {
-                    IconButton(onClick = onLogout) {
-                        Icon(
-                            painter = painterResource(R.drawable.logout),
-                            contentDescription = "Cerrar Sesión",
-                            tint = Color.White
-                        )
-                    }
-                }
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -223,7 +218,7 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // User Info Card
-            UserInfoCard(name = name, phone = phone)
+            UserInfoCard(name = name, phone = phone, onLogout = onLogout)
 
             // APDU Card (solo si es necesario mostrarlo)
             if (apduCommand.isNotEmpty()) {
@@ -573,7 +568,7 @@ fun calculateProgress(fase: String): ProgressData {
 }
 
 @Composable
-fun UserInfoCard(name: String, phone: String) {
+fun UserInfoCard(name: String, phone: String, onLogout: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -639,6 +634,30 @@ fun UserInfoCard(name: String, phone: String) {
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row {
+                Button(
+                    onClick = onLogout,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = InstitutionalBlue
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.logout),
+                        contentDescription = "Cerrar Sesión",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Cerrar Sesión",
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
