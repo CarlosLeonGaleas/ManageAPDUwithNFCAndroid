@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.myndef"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.myndef"
@@ -78,7 +78,6 @@ dependencies {
 
     // Para cargar imágenes (si necesitas la funcionalidad del ImageView)
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation(libs.androidx.ui)
 
     // Testing
     testImplementation(libs.junit)

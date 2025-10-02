@@ -108,16 +108,14 @@ fun LoginScreen(
                         Image(
                             painter = painterResource(R.drawable.universitario_ru_blanco),
                             contentDescription = "Logo Universitario RU",
-                            modifier = Modifier.width(180.dp),
-                            contentScale = ContentScale.Fit
+                            modifier = Modifier.width(180.dp)
                         )
 
                         // Logo derecho (Departamento de Investigación)
                         Image(
                             painter = painterResource(R.drawable.departamentoinv_blanco),
                             contentDescription = "Logo Investigación",
-                            modifier = Modifier.height(40.dp),
-                            contentScale = ContentScale.Fit
+                            modifier = Modifier.height(40.dp)
                         )
                         Spacer(modifier = Modifier.width(1.dp))
                     }
