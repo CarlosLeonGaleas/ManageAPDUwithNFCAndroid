@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -285,8 +286,13 @@ fun MainScreen(
                             trackColor = Color(0xFFE0E0E0)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
+                        /*Text(
                             text = "Fragmentos: ${progressData.fragmentosRecibidos}/${progressData.totalFragmentos}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )*/
+                        Text(
+                            text = "No aleje el teléfono hasta que se muestren las preguntas",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
@@ -376,38 +382,6 @@ fun MainScreen(
                     )
                 }
 
-                AnimatedVisibility(
-                    visible = showQuestions,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(durationMillis = 400, delayMillis = 400)
-                    ) + fadeIn(animationSpec = tween(durationMillis = 400, delayMillis = 400))
-                ) {
-                    Button(
-                        onClick = { onConfirm() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = InstitutionalOrange
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.save_responses),
-                            contentDescription = "Confirmar",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Confirmar Respuestas",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
                 if (fase == "QUIZ_FINISHED") {
                     Card(
                         modifier = Modifier
@@ -418,14 +392,20 @@ fun MainScreen(
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Box(
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
-                            contentAlignment = Alignment.Center
+                                .padding(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Image(
+                                painter = painterResource(R.drawable.contactless_nfc_orange),
+                                contentDescription = "NFC",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "📱 Acerque su teléfono al lector para ver y registrar su puntuación",
+                                text = "Acerque su teléfono al lector para mostrar y registrar su puntuación",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = InstitutionalOrange,
                                 fontWeight = FontWeight.Medium
@@ -443,19 +423,59 @@ fun MainScreen(
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Box(
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
-                            contentAlignment = Alignment.Center
+                                .padding(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Image(
+                                painter = painterResource(R.drawable.check_circle),
+                                contentDescription = "Visto",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "✓ Su puntaje fue: $aciertos. Ya se registró en la Base de Datos",
+                                text = "Su puntaje fue: $aciertos. Ya se registró su puntuación en el sistema",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = Color(0xFF2E7D32),
                                 fontWeight = FontWeight.Bold
                             )
                         }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = showQuestions,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(durationMillis = 400, delayMillis = 400)
+                    ) + fadeIn(animationSpec = tween(durationMillis = 400, delayMillis = 400))
+                ) {
+                    Button(
+                        onClick = { onConfirm() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = InstitutionalOrange
+                        ),
+                        enabled = fase == "QUIZ_RECIBIDO"
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.save_responses),
+                            contentDescription = "Confirmar",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            // Usa if-else como una expresión que devuelve un valor
+                            text = if (fase == "QUIZ_RECIBIDO") "Guardar respuestas" else if (fase == "QUIZ_FINISHED") "Respuestas guardadas" else "Respuestas registradas",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -465,15 +485,43 @@ fun MainScreen(
 
         // Results Dialog
         if (showDialog) {
+            // 1. Determina los colores basados en la variable 'aciertos'
+            val (backgroundColor, textColor) = when (aciertos) {
+                in 4..5 -> Pair(Color(0xFF4CAF50).copy(alpha = 0.15f), Color(0xFF2E7D32)) // Verde (fondo claro, texto oscuro)
+                in 2..3 -> Pair(InstitutionalOrange.copy(alpha = 0.1f), InstitutionalOrange) // Naranja institucional
+                else -> Pair(Color(0xFFF44336).copy(alpha = 0.1f), Color(0xFFC62828)) // Rojo (fondo claro, texto oscuro)
+            }
+
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = {
-                    Text(
-                        text = "🎯 Resultados del Cuestionario",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = InstitutionalBlue
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp) // tamaño del círculo
+                                .background(
+                                    color = InstitutionalBlue, // color de fondo del círculo
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.social_leaderboard),
+                                contentDescription = "Ícono Resultados",
+                                modifier = Modifier
+                                    .size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Resultados del Cuestionario",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
                 },
                 text = {
                     Column(
@@ -490,7 +538,8 @@ fun MainScreen(
                             modifier = Modifier
                                 .size(120.dp)
                                 .background(
-                                    color = InstitutionalOrange.copy(alpha = 0.1f),
+                                    // 2. Usa el color de fondo calculado
+                                    color = backgroundColor,
                                     shape = RoundedCornerShape(60.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -498,7 +547,8 @@ fun MainScreen(
                             Text(
                                 text = "$aciertos/5",
                                 style = MaterialTheme.typography.displayMedium,
-                                color = InstitutionalOrange,
+                                // 3. Usa el color de texto calculado
+                                color = textColor,
                                 fontWeight = FontWeight.Bold
                             )
                         }
