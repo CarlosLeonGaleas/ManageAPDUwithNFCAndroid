@@ -1,7 +1,9 @@
 package com.example.myndef.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,20 +11,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,21 +40,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myndef.MainActivityViewModel
 import com.example.myndef.MessageManager
 import com.example.myndef.R
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+// Colores institucionales
+private val InstitutionalBlue = Color(0xFF27348B)
+private val InstitutionalOrange = Color(0xFFF3940B)
+private val LightGray = Color(0xFFF5F5F5)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     nameText: String,
@@ -77,107 +95,291 @@ fun LoginScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Logo izquierdo (Universitario Rumiñahui)
+                        Image(
+                            painter = painterResource(R.drawable.universitario_ru_blanco),
+                            contentDescription = "Logo Universitario RU",
+                            modifier = Modifier.height(40.dp)
+                        )
+
+                        // Logo derecho (Departamento de Investigación)
+                        Image(
+                            painter = painterResource(R.drawable.departamentoinv_blanco),
+                            contentDescription = "Logo Investigación",
+                            modifier = Modifier.height(40.dp)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = InstitutionalBlue
+                )
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = LightGray
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.departamentoinv),
-                contentDescription = "Departamento Inv",
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Logo de la aplicación en forma circular
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(99.dp)
-            )
-
-            OutlinedTextField(
-                value = nameText,
-                onValueChange = onNameChange,
-                label = { Text("Nombre completo") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            PhoneNumberInput(
-                phoneNumber = phoneNumber,
-                onPhoneNumberChange = onPhoneChange,
-                onPhoneNumberValid = onPhoneNumberValid
-            )
-
-            Button(
-                onClick = { onLogin() },
-                modifier = Modifier.fillMaxWidth()
+                    .size(140.dp)
+                    .background(
+                        color = InstitutionalBlue,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Text("Registrar e Ingresar")
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    painter = painterResource(R.drawable.login),
-                    contentDescription = "Ingresar",
+                Image(
+                    painter = painterResource(R.drawable.logoblanco),
+                    contentDescription = "Logo de la Aplicación",
+                    modifier = Modifier.size(100.dp)
                 )
             }
+
+            // Título de bienvenida
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Bienvenido",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = InstitutionalBlue
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Sistema de Cuestionarios NFC",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Card con formulario
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Text(
+                        text = "Iniciar Sesión",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = InstitutionalBlue
+                    )
+
+                    // Campo de nombre
+                    OutlinedTextField(
+                        value = nameText,
+                        onValueChange = onNameChange,
+                        label = { Text("Nombre completo") },
+                        leadingIcon = {
+                            Text("👤", fontSize = 20.sp)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = InstitutionalBlue,
+                            focusedLabelColor = InstitutionalBlue,
+                            cursorColor = InstitutionalBlue
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    // Campo de teléfono
+                    PhoneNumberInput(
+                        phoneNumber = phoneNumber,
+                        onPhoneNumberChange = onPhoneChange,
+                        onPhoneNumberValid = onPhoneNumberValid
+                    )
+
+                    // Botón de login
+                    Button(
+                        onClick = { onLogin() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = InstitutionalOrange
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.login),
+                            contentDescription = "Ingresar",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Registrar e Ingresar",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            // Card de último registro
             val parts = lastLogin.split("|")
             val nombreCompleto = parts.getOrNull(0) ?: ""
             val numeroTelefonico = parts.getOrNull(1) ?: ""
+
             fun useLastDataLogin() {
                 onNameChange(nombreCompleto)
                 onPhoneChange(numeroTelefonico)
                 onPhoneNumberValid(true)
             }
-            if (nombreCompleto != "" && numeroTelefonico != "") {
+
+            if (nombreCompleto.isNotEmpty() && numeroTelefonico.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(20.dp)
                 ) {
-
-                    Text(
-                        text = "Información de último registro: ",
-                        modifier = Modifier.padding(16.dp),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    // Fila Nombre
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text(
-                            text = "Nombre: ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = nombreCompleto,
-                            fontSize = 14.sp
-                        )
-                    }
-                    // Fila Teléfono
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text(
-                            text = "Teléfono: ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = numeroTelefonico,
-                            fontSize = 14.sp
-                        )
-                    }
-
-                    //Botón de reutilización de credenciales
-                    Button(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        onClick = { useLastDataLogin() }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("Usar estos datos")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(R.drawable.arrow_up),
-                            contentDescription = "Usar estos datos",
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "🕐",
+                                fontSize = 24.sp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Último registro",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = InstitutionalBlue
+                            )
+                        }
+
+                        // Información del último usuario
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = LightGray
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // Nombre
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "👤",
+                                        fontSize = 16.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = "Nombre",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
+                                        Text(
+                                            text = nombreCompleto,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+
+                                // Teléfono
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "📱",
+                                        fontSize = 16.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = "Teléfono",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
+                                        Text(
+                                            text = numeroTelefonico,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Botón de reutilización
+                        Button(
+                            onClick = { useLastDataLogin() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = InstitutionalBlue
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.arrow_up),
+                                contentDescription = "Usar estos datos",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Usar estos datos",
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -224,7 +426,21 @@ fun PhoneNumberInput(
         },
         label = { Text("Número de teléfono") },
         leadingIcon = {
-            Text("+593", modifier = Modifier.padding(start = 8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Text(
+                    text = "📱",
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "+593",
+                    fontWeight = FontWeight.Medium,
+                    color = InstitutionalBlue
+                )
+            }
         },
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Number
@@ -240,7 +456,6 @@ fun PhoneNumberInput(
                     onPhoneNumberValid(false)
                     errorMessage = ""
                 } else if (hasBeenFocused) {
-                    // Solo validar si el usuario alguna vez tocó el campo
                     if (!phoneNumber.startsWith("09")) {
                         isError = true
                         errorMessage = "El número debe comenzar con 09"
@@ -256,10 +471,20 @@ fun PhoneNumberInput(
             },
         isError = isError,
         supportingText = if (isError) {
-            { Text(errorMessage, color = MaterialTheme.colorScheme.error) }
-        } else null
+            {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        } else null,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = InstitutionalBlue,
+            focusedLabelColor = InstitutionalBlue,
+            cursorColor = InstitutionalBlue,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error
+        ),
+        shape = RoundedCornerShape(12.dp)
     )
 }
-
-
-
