@@ -221,8 +221,41 @@ fun MainScreen(
             UserInfoCard(name = name, phone = phone, onLogout = onLogout)
 
             // APDU Card (solo si es necesario mostrarlo)
-            if (apduCommand.isNotEmpty()) {
+            /*if (apduCommand.isNotEmpty()) {
                 ApduCard(apduCommand)
+            }*/
+
+            // Status Message
+            if (status == "EMPTY" && !progressData.showProgress) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = InstitutionalBlue.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.contactless_nfc),
+                            contentDescription = "NFC",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Encienda el NFC de su teléfono y acérquelo al lector para acceder al cuestionario",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = InstitutionalBlue,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
 
             // Progress Indicator
@@ -258,33 +291,6 @@ fun MainScreen(
                             text = "Fragmentos: ${progressData.fragmentosRecibidos}/${progressData.totalFragmentos}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
-                        )
-                    }
-                }
-            }
-
-            // Status Message
-            if (status == "EMPTY") {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = InstitutionalBlue.copy(alpha = 0.1f)
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "📱 Acerque su teléfono al lector para acceder al cuestionario",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = InstitutionalBlue,
-                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -595,9 +601,10 @@ fun UserInfoCard(name: String, phone: String, onLogout: () -> Unit) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "👤",
-                    fontSize = 20.sp
+                Image(
+                    painter = painterResource(R.drawable.person_user),
+                    contentDescription = "Icono de Usuario",
+                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
@@ -618,9 +625,10 @@ fun UserInfoCard(name: String, phone: String, onLogout: () -> Unit) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "📱",
-                    fontSize = 20.sp
+                Image(
+                    painter = painterResource(R.drawable.mobile_phone),
+                    contentDescription = "Icono de Teléfono",
+                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {

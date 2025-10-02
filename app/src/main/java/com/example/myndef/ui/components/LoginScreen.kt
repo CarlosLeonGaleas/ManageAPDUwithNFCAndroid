@@ -139,7 +139,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Logo de la aplicación en forma circular
             Box(
@@ -206,7 +206,11 @@ fun LoginScreen(
                         onValueChange = onNameChange,
                         label = { Text("Nombre completo") },
                         leadingIcon = {
-                            Text("👤", fontSize = 20.sp)
+                            Image(
+                                painter = painterResource(R.drawable.person_user),
+                                contentDescription = "Icono de Usuario",
+                                modifier = Modifier.size(24.dp)
+                            )
                         },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -280,9 +284,10 @@ fun LoginScreen(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "🕐",
-                                fontSize = 24.sp
+                            Image(
+                                painter = painterResource(R.drawable.history_user),
+                                contentDescription = "último registro",
+                                modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -311,9 +316,10 @@ fun LoginScreen(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "👤",
-                                        fontSize = 16.sp
+                                    Image(
+                                        painter = painterResource(R.drawable.person_user),
+                                        contentDescription = "Icono de Usuario",
+                                        modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
@@ -335,9 +341,10 @@ fun LoginScreen(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "📱",
-                                        fontSize = 16.sp
+                                    Image(
+                                        painter = painterResource(R.drawable.mobile_phone),
+                                        contentDescription = "Icono de Teléfono",
+                                        modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
@@ -434,9 +441,10 @@ fun PhoneNumberInput(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 4.dp)
             ) {
-                Text(
-                    text = "📱",
-                    fontSize = 18.sp
+                Image(
+                    painter = painterResource(R.drawable.mobile_phone),
+                    contentDescription = "Icono de Teléfono",
+                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
