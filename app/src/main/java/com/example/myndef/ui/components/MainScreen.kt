@@ -28,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -301,7 +302,7 @@ fun MainScreen(
             }
 
             // Questions
-            if (fase == "QUIZ_RECIBIDO" || status == "CONFIRMED") {
+            if (fase == "QUIZ_RECIBIDO" || status == "CONFIRMED" || status == "REGISTERING") {
                 AnimatedVisibility(
                     visible = showQuestions,
                     enter = slideInVertically(
@@ -382,7 +383,7 @@ fun MainScreen(
                     )
                 }
 
-                if (fase == "QUIZ_FINISHED") {
+                if (fase == "QUIZ_FINISHED" && status != "REGISTERING") {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -409,6 +410,47 @@ fun MainScreen(
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = InstitutionalOrange,
                                 fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }else if (status == "REGISTERING" && !showDialog){
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        // Usa Column para apilar elementos verticalmente
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            // Centra los elementos horizontalmente dentro de la columna
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            // Centra los elementos verticalmente (opcional, pero bueno para el espaciado)
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(64.dp),
+                                color = InstitutionalOrange,
+                                trackColor = InstitutionalOrange.copy(alpha = 0.15f)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Verificando respuestas...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = InstitutionalBlue,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "No aleje el teléfono hasta que se muestre su puntuación",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
                             )
                         }
                     }
@@ -562,7 +604,10 @@ fun MainScreen(
                 },
                 confirmButton = {
                     TextButton(
-                        onClick = { showDialog = false },
+                        onClick = {
+                            showDialog = false
+                            viewModel.updateStatus("CONFIRMED")
+                        },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = InstitutionalBlue
                         )
